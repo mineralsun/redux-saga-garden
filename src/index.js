@@ -6,7 +6,7 @@ import createSagaMiddleware from 'redux-saga';
 import logger from 'redux-logger';
 import App from './App';
 import axios from 'axios';
-import { takeEvery, put } from 'redux-saga/effects';
+import { takeLatest, put } from 'redux-saga/effects';
 
 // this startingPlantArray should eventually be removed
 const startingPlantArray = [
@@ -24,8 +24,44 @@ const plantList = (state = startingPlantArray, action) => {
   }
 };
 
-function* rootSaga() {
+function* fetchPlants() {
+  try {
+    const response = yield axios.get('/api/plant');
+    const action = { type: 'SET_PLANTS', payload: response.data }
+    // Put is the SAME as dispatch
+    yield put(action);
+  } catch (error) {
+    console.log(`Error in generator fetchPlants`, error)
+  }
+}
 
+function* postPlant(action){
+  try {
+    yield axios.post('/api/plant', action.payload);
+    yield put({ type: 'FETCH_PLANTS'});
+    // action.setPlant('');
+  } catch (error) {
+    console.log(`Error in postPlant ${error}`);
+    alert('Something went wrong!')
+  }
+}
+
+function* deletePlant(action){
+  try {
+    yield axios.delete('/api/plant/:id', action.payload);
+    yield put ({ type: 'FETCH_PLANTS'});
+  } catch (error) {
+    console.log(`Error in deletePlant ${error}`);
+    alert('Something went wrong!');
+  }
+
+}
+
+function* rootSaga() {
+  // Setup all sagas here (map action type to saga functions)
+  yield takeLatest('DELETE_PLANT', deletePlant);
+  yield takeLatest('FETCH_PLANTS', fetchPlants);
+  yield takeLatest('ADD_PLANT', postPlant);
 }
 //Step 4
 const sagaMiddleware = createSagaMiddleware();
