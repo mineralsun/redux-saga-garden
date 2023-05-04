@@ -9,16 +9,16 @@ import axios from 'axios';
 import { takeLatest, put } from 'redux-saga/effects';
 
 // this startingPlantArray should eventually be removed
-const startingPlantArray = [
-  { id: 1, name: 'Rose' },
-  { id: 2, name: 'Tulip' },
-  { id: 3, name: 'Oak' }
-];
+const startingPlantArray = [];
 
 const plantList = (state = startingPlantArray, action) => {
   switch (action.type) {
     case 'ADD_PLANT':
-      return [ ...state, action.payload ]
+      // when adding a new plant, use spread operator
+      return [ ...state, action.payload ];
+      // do NOT use spread operator when setting all plants, just return entire payload
+      case 'SET_PLANTS':
+        return action.payload;
     default:
       return state;
   }
@@ -31,20 +31,33 @@ function* fetchPlants() {
     // Put is the SAME as dispatch
     yield put(action);
   } catch (error) {
-    console.log(`Error in generator fetchPlants`, error)
+    console.error(`Error in generator fetchPlants`, error)
   }
 }
 
-function* postPlant(action){
+// Takes in an action with a payload and sends that payload
+// to the server!
+function* sendPlantToServer(action) {
   try {
     yield axios.post('/api/plant', action.payload);
-    yield put({ type: 'FETCH_PLANTS'});
-    // action.setPlant('');
+    yield put({ type: 'FETCH_PLANTS' });
   } catch (error) {
-    console.log(`Error in postPlant ${error}`);
+    console.log(`Error in addPlant`, error)
     alert('Something went wrong!')
+    throw error;
   }
 }
+
+// function* addPlant(action){
+//   try {
+//     yield axios.post('/api/plant', action.payload);
+//     yield put({ type: 'FETCH_PLANTS'});
+    // action.setPlant('');
+//   } catch (error) {
+//     console.log(`Error in postPlant ${error}`);
+//     alert('Something went wrong!')
+//   }
+// }
 
 function* deletePlant(action){
   try {
@@ -59,9 +72,9 @@ function* deletePlant(action){
 
 function* rootSaga() {
   // Setup all sagas here (map action type to saga functions)
-  yield takeLatest('DELETE_PLANT', deletePlant);
   yield takeLatest('FETCH_PLANTS', fetchPlants);
-  yield takeLatest('ADD_PLANT', postPlant);
+  yield takeLatest('DELETE_PLANT', deletePlant);
+  yield takeLatest('SEND_PLANT_TO_SERVER', sendPlantToServer);
 }
 //Step 4
 const sagaMiddleware = createSagaMiddleware();

@@ -5,7 +5,11 @@ import { useDispatch, useSelector} from 'react-redux';
 function PlantList() {
     const dispatch = useDispatch();
 
-    const plants = useSelector(store => store.plantList);
+    const reduxState = useSelector(store => store);
+
+    const plantList = useSelector(store => store.plantList);
+
+
 
     const getPlants = () => {
         dispatch({ type: 'FETCH_PLANTS'})
@@ -17,20 +21,25 @@ function PlantList() {
 
     useEffect(() => {
         console.log('component did mount');
-        getPlants();
-        deletePlant();
+        // getPlants();
+        // deletePlant();
         // dispatch an action to request the plantList from the API
+        dispatch({ type: 'FETCH_PLANTS' });
     }, []); 
 
     return (
         <div>
             <h3>This is the plant list</h3>
+            <pre>{JSON.stringify(plantList)}</pre>
             <ul>
                 {
-                    plants.map(plant => (
-                        <li key={plant.id}>
-                            {plant}
-                        </li>
+                    plantList.map(plant => (
+                        <div>
+                            {plant.name}
+                            <button onClick={() => removePlant(plant.id)}>
+                                Remove
+                            </button>
+                        </div>
                     ))
                 }
                 </ul>
