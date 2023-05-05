@@ -10,15 +10,6 @@ function PlantList() {
     const plantList = useSelector(store => store.plantList);
 
 
-
-    const getPlants = () => {
-        dispatch({ type: 'FETCH_PLANTS'})
-    }
-
-    const deletePlant = () => {
-        dispatch({ type: 'DELETE_PLANT'})
-    }
-
     useEffect(() => {
         console.log('component did mount');
         // getPlants();
@@ -27,15 +18,20 @@ function PlantList() {
         dispatch({ type: 'FETCH_PLANTS' });
     }, []); 
 
+    const removePlant = (id) => {
+        dispatch({ type: 'REMOVE_PLANT', payload: id });
+    }
+
     return (
         <div>
             <h3>This is the plant list</h3>
-            <pre>{JSON.stringify(plantList)}</pre>
+            {/* <pre>{JSON.stringify(plantList)}</pre> */}
             <ul>
                 {
                     plantList.map(plant => (
-                        <div>
-                            {plant.name}
+                        <div key={plant.id}>
+                            <p>{plant.name}</p>
+                            <p>{plant.kingdom}</p>
                             <button onClick={() => removePlant(plant.id)}>
                                 Remove
                             </button>

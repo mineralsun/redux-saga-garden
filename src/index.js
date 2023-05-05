@@ -48,32 +48,21 @@ function* sendPlantToServer(action) {
   }
 }
 
-// function* addPlant(action){
-//   try {
-//     yield axios.post('/api/plant', action.payload);
-//     yield put({ type: 'FETCH_PLANTS'});
-    // action.setPlant('');
-//   } catch (error) {
-//     console.log(`Error in postPlant ${error}`);
-//     alert('Something went wrong!')
-//   }
-// }
-
-function* deletePlant(action){
+function* removePlant(action) {
   try {
-    yield axios.delete('/api/plant/:id', action.payload);
-    yield put ({ type: 'FETCH_PLANTS'});
+    yield axios.delete(`/api/plant/${action.payload}`)
+    yield put({ type: 'FETCH_PLANTS'});
   } catch (error) {
-    console.log(`Error in deletePlant ${error}`);
-    alert('Something went wrong!');
+  alert('Something went wrong!')
+  console.log(`Error in removePlant`)
+  throw error;
   }
-
 }
 
 function* rootSaga() {
   // Setup all sagas here (map action type to saga functions)
   yield takeLatest('FETCH_PLANTS', fetchPlants);
-  yield takeLatest('DELETE_PLANT', deletePlant);
+  yield takeLatest('REMOVE_PLANT', removePlant);
   yield takeLatest('SEND_PLANT_TO_SERVER', sendPlantToServer);
 }
 //Step 4
